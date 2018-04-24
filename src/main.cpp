@@ -1,6 +1,4 @@
 #include <GLFW/glfw3.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 #include <iostream>
 
@@ -20,12 +18,16 @@ int main(int argc, char** argv)
     glfwTerminate();
     exit(EXIT_FAILURE);
   }
-  
+
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
 
   while (!glfwWindowShouldClose(window))
   {
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+    glClear(GL_COLOR_BUFFER_BIT);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
