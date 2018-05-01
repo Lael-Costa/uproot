@@ -7,6 +7,8 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <fstream>
+#include <streambuf>
 
 #include "polynomial.h"
 #include "shader.h"
@@ -55,7 +57,8 @@ int main(int argc, char** argv)
   glfwSetKeyCallback(window, onKeyPress);
 
   glfwMakeContextCurrent(window);
-
+  glfwSwapInterval(1);
+  
   GLenum err = glewInit();
   if (err != GLEW_OK)
   {
@@ -66,14 +69,36 @@ int main(int argc, char** argv)
   }
   printGLVersion();
 
-  std::string vertexShaderSource;
-  std::string fragmentShaderSource;
 
-  // std::shared_ptr<Shader> shader = std::make_shared<Shader>(
-  //   "/Users/laelcosta/Dropbox/Spring2017/Math 154/uproot/res/shader.vs",
-  //   "/Users/laelcosta/Dropbox/Spring2017/Math 154/uproot/res/shader.fs");
-  // shader->bind();
-  glfwSwapInterval(1);
+  std::ifstream t("./res/shader.vs");
+  std::string vertexShaderSource((std::istreambuf_iterator<char>(t)),
+    std::istreambuf_iterator<char>());
+
+  std::ifstream t1("./res/shader.fs");
+  std::string fragmentShaderSource((std::istreambuf_iterator<char>(t1)),
+    std::istreambuf_iterator<char>());
+
+  std::shared_ptr<Shader> shader = std::make_shared<Shader>(vertexShaderSource,
+    fragmentShaderSource);
+
+  GLuint vaoID;
+  glGenVertexArrays(1, &vaoID);
+  glBindVertexArray(vaoID);
+
+  static const GLfloat g_vertex_buffer_data[] = {
+    -1.0f, -1.0f, 0.0f,
+    3.0f, -1.0f, 0.0f,
+    -1.0f,  3.0f, 0.0f,
+  };
+
+  GLuint vboID;
+  glGenBuffers(1, &vboID);
+  glBindBuffer(GL_ARRAY_BUFFER, vboID);
+  glBufferData(
+    GL_ARRAY_BUFFER,
+    sizeof(g_vertex_buffer_data),
+    g_vertex_buffer_data,
+    GL_STATIC_DRAW);
 
   while (!glfwWindowShouldClose(window))
   {
@@ -82,7 +107,24 @@ int main(int argc, char** argv)
     glViewport(0, 0, width, height);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    shader->bind();
+    shader->setUniform("screenSize", glm::vec2(width, height));
+    shader->setUniform("scale", 1.f);
+    
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+      0,
+      3,
+      GL_FLOAT,
+      GL_FALSE,
+      0,
+      (void *) 0
+    );
 
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisableVertexAttribArray(0);
+    
+    shader->unbind();
 
     glfwSwapBuffers(window);
     glfwPollEvents();

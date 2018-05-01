@@ -375,7 +375,7 @@ std::vector<T> solve(polynomial<T> pol){
     polynomial<T> p = pol;
     int degree = p.degree();
     std::vector<T> factors;
-    while (degree != 0){
+    while (degree != 0) {
         T factor = newton(p);
         factors.push_back(factor);
         polynomial<T> q = polynomial<T>({1,-1*factor});
