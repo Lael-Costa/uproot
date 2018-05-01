@@ -1,5 +1,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <complex>
 
 #include <iostream>
 #include <memory>
@@ -25,6 +28,8 @@ void printGLVersion()
   glGetIntegerv(GL_MINOR_VERSION, &min);
   std::cout << "OpenGL Version: " << maj << "." << min << std::endl;
 }
+
+#include "polynomial.hpp"
 
 int main(int argc, char** argv)
 {
@@ -87,4 +92,19 @@ int main(int argc, char** argv)
 
   glfwTerminate();
   exit(EXIT_SUCCESS);
+
+    // polynomial testing, integers
+    //polynomial<std::complex<double>> p1({1,0,0,0,1});
+    //polynomial<std::complex<double>> p2({1, {-0.62349,-0.781831}});
+
+    //polynomial<std::complex<double>> p3({4, 3, 2, 1, 0.5,}); 
+    //std::cout << p1; 
+    //std::cout << p2; 
+    
+    //std::cout << p1 / p2;
+    //std::cout << p1 % p2;
+
+    //std::cout << p1.derivative();
+    //std::cout << p3.derivative();
+    //std::cout << p1.eval(0.5) << "\n";
 }
