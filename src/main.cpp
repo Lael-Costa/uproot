@@ -13,6 +13,8 @@
 #include "polynomial.h"
 #include "shader.h"
 
+bool keys_held[400];
+
 static void onKeyPress(GLFWwindow *window,
   int key,
   int scancode,
@@ -21,6 +23,12 @@ static void onKeyPress(GLFWwindow *window,
 {
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
+  }
+  if (key != GLFW_KEY_UNKNOWN && action == GLFW_PRESS) {
+    keys_held[key] = true;
+  }
+  if (key != GLFW_KEY_UNKNOWN && action == GLFW_RELEASE) {
+    keys_held[key] = false;
   }
 }
 
@@ -35,14 +43,18 @@ void printGLVersion()
 
 int main(int argc, char** argv)
 {
+  for (int i = 0; i < 400; i++) {
+    keys_held[i] = false;
+  }
+
   if (!glfwInit())
   {
     std::cerr << "GLFW initialization failed!" << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -58,7 +70,7 @@ int main(int argc, char** argv)
 
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
-  
+
   GLenum err = glewInit();
   if (err != GLEW_OK)
   {
@@ -78,7 +90,8 @@ int main(int argc, char** argv)
   std::string fragmentShaderSource((std::istreambuf_iterator<char>(t1)),
     std::istreambuf_iterator<char>());
 
-  std::shared_ptr<Shader> shader = std::make_shared<Shader>(vertexShaderSource,
+  std::shared_ptr<Shader> shader = std::make_shared<Shader>(
+    vertexShaderSource,
     fragmentShaderSource);
 
   GLuint vaoID;
@@ -87,8 +100,8 @@ int main(int argc, char** argv)
 
   static const GLfloat g_vertex_buffer_data[] = {
     -1.0f, -1.0f, 0.0f,
-    3.0f, -1.0f, 0.0f,
-    -1.0f,  3.0f, 0.0f,
+    +3.0f, -1.0f, 0.0f,
+    -1.0f, +3.0f, 0.0f,
   };
 
   GLuint vboID;
@@ -100,8 +113,23 @@ int main(int argc, char** argv)
     g_vertex_buffer_data,
     GL_STATIC_DRAW);
 
+  float scale = 1.f;
+  glm::vec2 pos = glm::vec2(0.f);
+
   while (!glfwWindowShouldClose(window))
   {
+    float xDiff = 0.f;
+    float yDiff = 0.f;
+    xDiff += keys_held[GLFW_KEY_RIGHT] * scale * 0.01;
+    xDiff -= keys_held[GLFW_KEY_LEFT] * scale * 0.01;
+    yDiff += keys_held[GLFW_KEY_UP] * scale * 0.01;
+    yDiff -= keys_held[GLFW_KEY_DOWN] * scale * 0.01;
+    pos.x += xDiff;
+    pos.y += yDiff;
+
+    scale *= 1.f + keys_held[GLFW_KEY_S] * 0.01f;
+    scale /= 1.f + keys_held[GLFW_KEY_W] * 0.01f;
+
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
@@ -109,8 +137,17 @@ int main(int argc, char** argv)
 
     shader->bind();
     shader->setUniform("screenSize", glm::vec2(width, height));
-    shader->setUniform("scale", 1.f);
-    
+    shader->setUniform("pos", pos);
+    shader->setUniform("scale", scale);
+
+    // TODO: set polynomial here
+    // shader->setUniform("degree", degree);
+    // shader->setUniform("polynomial[0]", <coefficient of x0>);
+    // shader->setUniform("polynomial[1]", <coefficient of x1>);
+
+    // shader->setUniform("derivative[0]", <coefficient of x0>);
+    // shader->setUniform("derivative[1]", <coefficient of x1>);
+
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
       0,
@@ -123,7 +160,7 @@ int main(int argc, char** argv)
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glDisableVertexAttribArray(0);
-    
+
     shader->unbind();
 
     glfwSwapBuffers(window);
@@ -139,10 +176,10 @@ int main(int argc, char** argv)
     //polynomial<std::complex<double>> p1({1,0,0,0,1});
     //polynomial<std::complex<double>> p2({1, {-0.62349,-0.781831}});
 
-    //polynomial<std::complex<double>> p3({4, 3, 2, 1, 0.5,}); 
-    //std::cout << p1; 
-    //std::cout << p2; 
-    
+    //polynomial<std::complex<double>> p3({4, 3, 2, 1, 0.5,});
+    //std::cout << p1;
+    //std::cout << p2;
+
     //std::cout << p1 / p2;
     //std::cout << p1 % p2;
 
