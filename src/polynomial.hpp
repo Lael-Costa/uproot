@@ -353,5 +353,32 @@ template <class charT, class traits, class T>
     }
     return os;
 }
-
+// Gets x for a pol
+template <class T>
+T newton(polynomial<T> pol){
+    T r = p.eval(0);
+    T x = 0;
+    polynomial<T> deriv = p.derivative();
+    while (r!= 0){
+        T delta = r/deriv.eval(x);
+        x -= delta
+        r = p.eval(x)
+        }
+    return x
+    }
+// Factors the pol and returns a vector with the factos
+template <class T>
+std::vector<T> solve(polynomial<T> pol){
+    polynomial<T> p = pol;
+    int degree = p.degree();
+    std::vector<T> factors;
+    while (degree != 0){
+        T factor = newton(p);
+        factors.push_back(factor);
+        polynomial<T> q = polynomial<T>({1,-1*factor})
+        p = p/q;
+        degree = p.degree();
+        }
+    return factors;
+}
 
