@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 
+#include "polynomial.h"
 #include "shader.h"
 
 static void onKeyPress(GLFWwindow *window,
@@ -29,7 +30,6 @@ void printGLVersion()
   std::cout << "OpenGL Version: " << maj << "." << min << std::endl;
 }
 
-#include "polynomial.hpp"
 
 int main(int argc, char** argv)
 {
@@ -69,10 +69,10 @@ int main(int argc, char** argv)
   std::string vertexShaderSource;
   std::string fragmentShaderSource;
 
-  std::shared_ptr<Shader> shader = std::make_shared<Shader>(
-    "/Users/laelcosta/Dropbox/Spring2017/Math 154/uproot/res/shader.vs",
-    "/Users/laelcosta/Dropbox/Spring2017/Math 154/uproot/res/shader.fs");
-  shader->bind();
+  // std::shared_ptr<Shader> shader = std::make_shared<Shader>(
+  //   "/Users/laelcosta/Dropbox/Spring2017/Math 154/uproot/res/shader.vs",
+  //   "/Users/laelcosta/Dropbox/Spring2017/Math 154/uproot/res/shader.fs");
+  // shader->bind();
   glfwSwapInterval(1);
 
   while (!glfwWindowShouldClose(window))
