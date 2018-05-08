@@ -114,10 +114,16 @@ int main(int argc, char** argv)
     g_vertex_buffer_data,
     GL_STATIC_DRAW);
 
-  float scale = 300.f;
+  float scale = 3.f;
   glm::vec2 pos = glm::vec2(0.f);
 
-  polynomial<std::complex<double>> poly({1, 0, 0, -1});
+  
+
+
+  polynomial<std::complex<double>> poly({1, 0, 0, -3, 0, -1});
+
+
+
   polynomial<std::complex<double>> deriv = poly.derivative();
   int degree = poly.degree();
   std::vector<std::complex<double>> roots = solve(poly);
@@ -132,7 +138,7 @@ int main(int argc, char** argv)
   }
 
   bool drawn = false;
-
+  
   glfwSetTime(0.0);
   double time = 0.0;
   double dt = 0.0;
@@ -145,7 +151,7 @@ int main(int argc, char** argv)
 
 
       time = glfwGetTime();
-      std::cout << time << std::endl;
+      // std::cout << time << std::endl;
       while (time >= 2 * M_PI) {
         time -= 2 * M_PI;
       }
@@ -167,6 +173,18 @@ int main(int argc, char** argv)
       if (keys_held[GLFW_KEY_R]) {
         scale = 3.f;
         pos = glm::vec2(0.f);
+      }
+
+      if (keys_held[GLFW_KEY_P]) {
+        // ask for new polynomial
+        // get string
+        // try to parse into polynomial
+        // 
+
+        // poly = ????
+        // deriv = poly.derivative();
+        // degree = poly.degree();
+        // roots = solve(poly);
       }
 
       int width, height;

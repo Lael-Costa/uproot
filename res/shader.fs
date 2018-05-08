@@ -6,7 +6,7 @@ uniform float scale;
 uniform float time;
 
 #define MAX_DEGREE 10
-#define MAX_ITERATIONS 32
+#define MAX_ITERATIONS 8
 #define M_PI 3.1415926535897932
 
 uniform int degree;
