@@ -10,7 +10,7 @@
         {
             "name": "Uproot",
             "working_dir": "/Users/laelcosta/Dropbox/Spring/Math 154/uproot",
-            "shell_cmd": "make bin/uproot && bin/uproot"
+            "shell_cmd": "make clean bin/uproot && bin/uproot"
         }
     ]
 }

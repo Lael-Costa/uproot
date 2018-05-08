@@ -43,6 +43,7 @@ void printGLVersion()
 
 int main(int argc, char** argv)
 {
+  srand(time(NULL));
   for (int i = 0; i < 400; i++) {
     keys_held[i] = false;
   }
@@ -58,7 +59,7 @@ int main(int argc, char** argv)
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow* window = glfwCreateWindow(640, 480, "Uproot", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(1000, 1000, "Uproot", NULL, NULL);
   if (!window)
   {
     std::cerr << "Window creation failed!" << std::endl;
@@ -113,57 +114,105 @@ int main(int argc, char** argv)
     g_vertex_buffer_data,
     GL_STATIC_DRAW);
 
-  float scale = 1.f;
+  float scale = 300.f;
   glm::vec2 pos = glm::vec2(0.f);
 
+  polynomial<std::complex<double>> poly({1, 0, 0, -1});
+  polynomial<std::complex<double>> deriv = poly.derivative();
+  int degree = poly.degree();
+  std::vector<std::complex<double>> roots = solve(poly);
+  
+  std::cout << "polynomial " << poly << std::endl;
+  for (int i = 0; i < degree; i++) {
+    std::string istr = "[" + std::to_string(i) + "] ";
+    std::complex<double> c = deriv[(degree - 1) - i];
+    std::cout << "derivative" + istr << c << std::endl;
+    c = roots[i];
+    std::cout << "roots" + istr << c << std::endl;
+  }
+
+  bool drawn = false;
+
+  glfwSetTime(0.0);
+  double time = 0.0;
+  double dt = 0.0;
   while (!glfwWindowShouldClose(window))
   {
-    float xDiff = 0.f;
-    float yDiff = 0.f;
-    xDiff += keys_held[GLFW_KEY_RIGHT] * scale * 0.01;
-    xDiff -= keys_held[GLFW_KEY_LEFT] * scale * 0.01;
-    yDiff += keys_held[GLFW_KEY_UP] * scale * 0.01;
-    yDiff -= keys_held[GLFW_KEY_DOWN] * scale * 0.01;
-    pos.x += xDiff;
-    pos.y += yDiff;
+    
+    if (!drawn) {
+      // double xpos, ypos;
+      // glfwGetCursorPos(window, &xpos, &ypos);
 
-    scale *= 1.f + keys_held[GLFW_KEY_S] * 0.01f;
-    scale /= 1.f + keys_held[GLFW_KEY_W] * 0.01f;
 
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
-    glClear(GL_COLOR_BUFFER_BIT);
+      time = glfwGetTime();
+      std::cout << time << std::endl;
+      while (time >= 2 * M_PI) {
+        time -= 2 * M_PI;
+      }
+      glfwSetTime(time);
+      dt = time - dt;
+      
+      float xDiff = 0.f;
+      float yDiff = 0.f;
+      xDiff += keys_held[GLFW_KEY_RIGHT] * scale * 0.05;
+      xDiff -= keys_held[GLFW_KEY_LEFT] * scale * 0.05;
+      yDiff += keys_held[GLFW_KEY_UP] * scale * 0.05;
+      yDiff -= keys_held[GLFW_KEY_DOWN] * scale * 0.05;
+      pos.x += xDiff;
+      pos.y += yDiff;
 
-    shader->bind();
-    shader->setUniform("screenSize", glm::vec2(width, height));
-    shader->setUniform("pos", pos);
-    shader->setUniform("scale", scale);
+      scale *= 1.f + keys_held[GLFW_KEY_S] * 0.05f;
+      scale /= 1.f + keys_held[GLFW_KEY_W] * 0.05f;
 
-    // TODO: set polynomial here
-    // shader->setUniform("degree", degree);
-    // shader->setUniform("polynomial[0]", <coefficient of x0>);
-    // shader->setUniform("polynomial[1]", <coefficient of x1>);
+      if (keys_held[GLFW_KEY_R]) {
+        scale = 3.f;
+        pos = glm::vec2(0.f);
+      }
 
-    // shader->setUniform("derivative[0]", <coefficient of x0>);
-    // shader->setUniform("derivative[1]", <coefficient of x1>);
+      int width, height;
+      glfwGetFramebufferSize(window, &width, &height);
+      glViewport(0, 0, width, height);
+      glClear(GL_COLOR_BUFFER_BIT);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-      0,
-      3,
-      GL_FLOAT,
-      GL_FALSE,
-      0,
-      (void *) 0
-    );
+      shader->bind();
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDisableVertexAttribArray(0);
+      shader->setUniform("screenSize", glm::vec2(width, height));
+      shader->setUniform("pos", pos);
+      shader->setUniform("scale", scale);
+      shader->setUniform("time", (float) time);
+      shader->setUniform("degree", degree);
 
-    shader->unbind();
+      for (int i = 0; i < degree + 1; i++) {
+        std::complex<double> c = poly[degree - i];
+        shader->setUniformArrayByIndex("polynomial", glm::vec2(c.real(), c.imag()), i);
 
-    glfwSwapBuffers(window);
+        if (i == degree) break;
+
+        c = deriv[(degree - 1) - i];
+        shader->setUniformArrayByIndex("derivative", glm::vec2(c.real(), c.imag()), i);
+        c = roots[i];
+        shader->setUniformArrayByIndex("roots", glm::vec2(c.real(), c.imag()), i);
+      }
+
+      glEnableVertexAttribArray(0);
+      glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        (void *) 0
+      );
+
+      glDrawArrays(GL_TRIANGLES, 0, 3);
+      glDisableVertexAttribArray(0);
+
+      shader->unbind();
+      // drawn = true;
+      dt = time;
+      glfwSwapBuffers(window);
+    }
+
     glfwPollEvents();
   }
 
@@ -171,19 +220,4 @@ int main(int argc, char** argv)
 
   glfwTerminate();
   exit(EXIT_SUCCESS);
-
-    // polynomial testing, integers
-    //polynomial<std::complex<double>> p1({1,0,0,0,1});
-    //polynomial<std::complex<double>> p2({1, {-0.62349,-0.781831}});
-
-    //polynomial<std::complex<double>> p3({4, 3, 2, 1, 0.5,});
-    //std::cout << p1;
-    //std::cout << p2;
-
-    //std::cout << p1 / p2;
-    //std::cout << p1 % p2;
-
-    //std::cout << p1.derivative();
-    //std::cout << p3.derivative();
-    //std::cout << p1.eval(0.5) << "\n";
 }
