@@ -117,17 +117,22 @@ int main(int argc, char** argv)
   float scale = 3.f;
   glm::vec2 pos = glm::vec2(0.f);
 
-  
+  std::vector<std::complex<double>> coeffs(6);
+  coeffs[0] = {1, 0};
+  coeffs[1] = {0, 0};
+  coeffs[2] = {0, 0};
+  coeffs[3] = {0, 0};
+  coeffs[4] = {0, 0};
+  coeffs[5] = {-1, 0};
 
-
-  polynomial<std::complex<double>> poly({1, 0, 0, -3, 0, -1});
+  polynomial<std::complex<double>> poly(coeffs);
 
 
 
   polynomial<std::complex<double>> deriv = poly.derivative();
   int degree = poly.degree();
   std::vector<std::complex<double>> roots = solve(poly);
-  
+
   std::cout << "polynomial " << poly << std::endl;
   for (int i = 0; i < degree; i++) {
     std::string istr = "[" + std::to_string(i) + "] ";
@@ -138,26 +143,24 @@ int main(int argc, char** argv)
   }
 
   bool drawn = false;
-  
+
   glfwSetTime(0.0);
   double time = 0.0;
   double dt = 0.0;
+
+  int coeffIndex = 5;
+
   while (!glfwWindowShouldClose(window))
   {
-    
+
     if (!drawn) {
       // double xpos, ypos;
       // glfwGetCursorPos(window, &xpos, &ypos);
 
 
       time = glfwGetTime();
-      // std::cout << time << std::endl;
-      while (time >= 2 * M_PI) {
-        time -= 2 * M_PI;
-      }
-      glfwSetTime(time);
       dt = time - dt;
-      
+
       float xDiff = 0.f;
       float yDiff = 0.f;
       xDiff += keys_held[GLFW_KEY_RIGHT] * scale * 0.05;
@@ -174,45 +177,70 @@ int main(int argc, char** argv)
         scale = 3.f;
         pos = glm::vec2(0.f);
       }
-      
-      if (keys_held[GLFW_KEY_P]) {
-      	std::complex<double> new_coeff;
-      	std::cout << "Please enter the coefficients of your new polynomial" << std::end;
 
-      	  std::string buf;
-    	    while(getline(cin, buf)) {
-        	  istringstream ssin(buf);
-        	  complex<double> input;
-        	  while(ssin >> input) {
-            	new_coeff.push_back(input);
-            }
-          }
-        poly = polynomial(new_coeff);
-        deriv = poly.derivative();
-  		  degree = poly.degree();
-  		  roots = solve(poly);
-  
-  		  std::cout << "polynomial " << poly << std::endl;
-  		  for (int i = 0; i < degree; i++) {
-    		  std::string istr = "[" + std::to_string(i) + "] ";
-    		  std::complex<double> c = deriv[(degree - 1) - i];
-    		  std::cout << "derivative" + istr << c << std::endl;
-    		  c = roots[i];
-    		  std::cout << "roots" + istr << c << std::endl;
-  		  }
-  	  }
+      if (keys_held[GLFW_KEY_0]) coeffIndex = 5;
+      if (keys_held[GLFW_KEY_1]) coeffIndex = 4;
+      if (keys_held[GLFW_KEY_2]) coeffIndex = 3;
+      if (keys_held[GLFW_KEY_3]) coeffIndex = 2;
+      if (keys_held[GLFW_KEY_4]) coeffIndex = 1;
+      if (keys_held[GLFW_KEY_5]) coeffIndex = 0;
 
-      if (keys_held[GLFW_KEY_P]) {
-        // ask for new polynomial
-        // get string
-        // try to parse into polynomial
-        // 
+      std::complex<double> coeff = coeffs[coeffIndex];
+      double re = coeff.real();
+      double im = coeff.imag();
+      re += keys_held[GLFW_KEY_L] * dt;
+      re -= keys_held[GLFW_KEY_J] * dt;
+      im += keys_held[GLFW_KEY_I] * dt;
+      im -= keys_held[GLFW_KEY_K] * dt;
+      coeffs[coeffIndex] = std::complex<double>(re, im);
 
-        // poly = ????
-        // deriv = poly.derivative();
-        // degree = poly.degree();
-        // roots = solve(poly);
+     //  if (keys_held[GLFW_KEY_P]) {
+     //  	std::vector<std::complex<double>> new_coeff;
+     //  	std::cout << "Please enter the coefficients of your new polynomial" << std::endl;
+
+     //  	  std::string buf;
+    	//     while(getline(std::cin, buf)) {
+     //    	  std::istringstream ssin(buf);
+     //    	  std::complex<double> input;
+     //    	  while(ssin >> input) {
+     //        	new_coeff.push_back(input);
+     //        }
+     //      }
+     //    poly = polynomial<std::complex<double>>(new_coeff);
+     //    deriv = poly.derivative();
+  		 //  degree = poly.degree();
+  		 //  roots = solve(poly);
+
+  		 //  std::cout << "polynomial " << poly << std::endl;
+  		 //  for (int i = 0; i < degree; i++) {
+    	// 	  std::string istr = "[" + std::to_string(i) + "] ";
+    	// 	  std::complex<double> c = deriv[(degree - 1) - i];
+    	// 	  std::cout << "derivative" + istr << c << std::endl;
+    	// 	  c = roots[i];
+    	// 	  std::cout << "roots" + istr << c << std::endl;
+  		 //  }
+  	  // }
+
+      poly = polynomial<std::complex<double>>(coeffs);
+      deriv = poly.derivative();
+      degree = poly.degree();
+      roots = solve(poly);
+
+      std::cout << "polynomial " << poly << std::endl;
+      for (int i = 0; i < degree; i++) {
+        std::string istr = "[" + std::to_string(i) + "] ";
+        std::complex<double> c = deriv[(degree - 1) - i];
+        std::cout << "derivative" + istr << c << std::endl;
+        c = roots[i];
+        std::cout << "roots" + istr << c << std::endl;
       }
+
+      std::ostringstream stream;
+      stream << poly;
+      std::string str = stream.str();
+      const char* chr = str.c_str();
+
+      glfwSetWindowTitle(window, chr);
 
       int width, height;
       glfwGetFramebufferSize(window, &width, &height);
