@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include </usr/local/include/GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -133,14 +133,14 @@ int main(int argc, char** argv)
   int degree = poly.degree();
   std::vector<std::complex<double>> roots = solve(poly);
 
-  std::cout << "polynomial " << poly << std::endl;
-  for (int i = 0; i < degree; i++) {
-    std::string istr = "[" + std::to_string(i) + "] ";
-    std::complex<double> c = deriv[(degree - 1) - i];
-    std::cout << "derivative" + istr << c << std::endl;
-    c = roots[i];
-    std::cout << "roots" + istr << c << std::endl;
-  }
+  // std::cout << "polynomial " << poly << std::endl;
+  // for (int i = 0; i < degree; i++) {
+    // std::string istr = "[" + std::to_string(i) + "] ";
+    // std::complex<double> c = deriv[(degree - 1) - i];
+    // std::cout << "derivative" + istr << c << std::endl;
+    // c = roots[i];
+    // std::cout << "roots" + istr << c << std::endl;
+  // }
 
   bool drawn = false;
 
@@ -226,14 +226,14 @@ int main(int argc, char** argv)
       degree = poly.degree();
       roots = solve(poly);
 
-      std::cout << "polynomial " << poly << std::endl;
-      for (int i = 0; i < degree; i++) {
-        std::string istr = "[" + std::to_string(i) + "] ";
-        std::complex<double> c = deriv[(degree - 1) - i];
-        std::cout << "derivative" + istr << c << std::endl;
-        c = roots[i];
-        std::cout << "roots" + istr << c << std::endl;
-      }
+      // std::cout << "polynomial " << poly << std::endl;
+      // for (int i = 0; i < degree; i++) {
+      //   std::string istr = "[" + std::to_string(i) + "] ";
+      //   std::complex<double> c = deriv[(degree - 1) - i];
+      //   std::cout << "derivative" + istr << c << std::endl;
+      //   c = roots[i];
+      //   std::cout << "roots" + istr << c << std::endl;
+      // }
 
       std::ostringstream stream;
       stream << poly;
