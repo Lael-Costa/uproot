@@ -173,7 +173,7 @@ int main(int argc, char** argv)
       	std::complex<double> new_coeff;
       	std::cout << "Please enter the coefficients of your new polynomial" << std::end;
 
-      	  string buf;
+      	  std::string buf;
     	    while(getline(cin, buf)) {
         	  istringstream ssin(buf);
         	  complex<double> input;
