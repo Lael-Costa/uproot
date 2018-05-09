@@ -168,6 +168,33 @@ int main(int argc, char** argv)
         scale = 3.f;
         pos = glm::vec2(0.f);
       }
+      
+      if (keys_held[GLFW_KEY_P]) {
+      	std::complex<double> new_coeff;
+      	std::cout << "Please enter the coefficients of your new polynomial" << std::end;
+
+      	  string buf;
+    	    while(getline(cin, buf)) {
+        	  istringstream ssin(buf);
+        	  complex<double> input;
+        	  while(ssin >> input) {
+            	new_coeff.push_back(input);
+            }
+          }
+        poly = polynomial(new_coeff);
+        deriv = poly.derivative();
+  		  degree = poly.degree();
+  		  roots = solve(poly);
+  
+  		  std::cout << "polynomial " << poly << std::endl;
+  		  for (int i = 0; i < degree; i++) {
+    		  std::string istr = "[" + std::to_string(i) + "] ";
+    		  std::complex<double> c = deriv[(degree - 1) - i];
+    		  std::cout << "derivative" + istr << c << std::endl;
+    		  c = roots[i];
+    		  std::cout << "roots" + istr << c << std::endl;
+  		  }
+  	  }
 
       int width, height;
       glfwGetFramebufferSize(window, &width, &height);
