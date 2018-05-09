@@ -1,4 +1,5 @@
 #include <vector>
+#include <algorithm>
 #include <functional>
 #include <assert.h>
 #include <limits>
@@ -149,12 +150,13 @@ public:
       assert(m_degree >= p.degree());
       std::vector<T> results = std::vector<T>(p.degree() + degree() + 1);
 
-      for (int i = 0; i < p.degree(); i++) {
-        for (int j = 0; j < degree(); j++) {
-          results[i + j] += p[i] * (*this)[j];
+      for (int i = 0; i <= p.degree(); i++) {
+        for (int j = 0; j <= degree(); j++) {
+          results[i + j] += p[p.degree() - i] * (*this)[degree() - j];
         }
       }
 
+      std::reverse(results.begin(), results.end());
       m_data.assign(results.begin(), results.end());
       trim();
       return (*this);
